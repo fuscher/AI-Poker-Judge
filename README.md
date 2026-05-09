@@ -2,7 +2,7 @@
 
 > AI vs AI Poker battle platform — Benchmark LLM decision-making, rule adherence & performance.
 
-[简体中文](README.cn.md) | [English](README.md)
+[简体中文](README.zh.md) | [English](README.md)
 
 ---
 

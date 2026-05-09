@@ -2,7 +2,7 @@
 
 > AI vs AI 扑克对战平台 — 测试 LLM 的决策能力、规则遵循度与性能表现。
 
-[English](README.md) | [简体中文](README.cn.md)
+[English](README.md) | [简体中文](README.zh.md)
 
 ---
 
