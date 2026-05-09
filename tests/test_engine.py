@@ -1,7 +1,7 @@
 import pytest
 
-from aipokerjudge.game.engine import DouDiZhuEngine
-from aipokerjudge.game.models import GameState, GameStatus
+from aipokerjudge.games.doudizhu.engine import DouDiZhuEngine
+from aipokerjudge.games.doudizhu.models import GameState, GameStatus
 
 
 def test_engine_creation():

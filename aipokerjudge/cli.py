@@ -1,7 +1,5 @@
-"""命令行交互界面"""
-
-import sys
-import os
+"""Command-line interface
+命令行交互界面"""
 
 from .config import (
     MODEL_A_NAME, MODEL_A_API_KEY, MODEL_A_BASE_URL,
@@ -218,15 +216,21 @@ def get_seed():
     return None
 
 
+def check_config_tips():
+    if not session_config.get("a_key") and not session_config.get("b_key"):
+        print("\n" + "=" * 60)
+        print("  " + t("tip_title"))
+        print("  " + t("tip_no_key"))
+        print("  " + t("tip_guide"))
+        print("=" * 60 + "\n")
+
+
 def main():
     print_banner()
     _load_session_config()
+    check_config_tips()
 
-    model_a, model_b = check_models()
-    if model_a is None:
-        sys.exit(1)
-
-    runner = BatchRunner(model_a, model_b)
+    runner = None
 
     while True:
         print_menu()
@@ -239,22 +243,28 @@ def main():
         elif choice == "4":
             print(toggle_lang() + "\n")
 
-        elif choice == "1":
-            rounds = get_rounds()
-            seed = get_seed()
-            result = run_visual_mode(runner, rounds, seed,
-                                     do_swap=session_config["position_swap"] or session_config["deal_normalization"])
-            save_report(result, session_config["a_name"], session_config["b_name"])
+        elif choice in ("1", "2"):
+            if runner is None:
+                model_a, model_b = check_models()
+                if model_a is None:
+                    print("\n  " + t("check_reconfig") + "\n")
+                    continue
+                runner = BatchRunner(model_a, model_b)
 
-        elif choice == "2":
             rounds = get_rounds()
             seed = get_seed()
-            workers = min(session_config["workers"], rounds)
-            if workers < session_config["workers"]:
-                print(f"  ⚠️ 线程数从 {session_config['workers']} 自动调整为 {workers}（不超过轮次）")
-            result = run_blackbox_mode(runner, rounds, seed,
-                                       max_workers=workers,
-                                       do_swap=session_config["position_swap"] or session_config["deal_normalization"])
+
+            if choice == "1":
+                result = run_visual_mode(runner, rounds, seed,
+                                         do_swap=session_config["position_swap"] or session_config["deal_normalization"])
+            else:
+                workers = min(session_config["workers"], rounds)
+                if workers < session_config["workers"]:
+                    print(f"  ⚠️ 线程数从 {session_config['workers']} 自动调整为 {workers}（不超过轮次）")
+                result = run_blackbox_mode(runner, rounds, seed,
+                                           max_workers=workers,
+                                           do_swap=session_config["position_swap"] or session_config["deal_normalization"])
+
             save_report(result, session_config["a_name"], session_config["b_name"])
 
         elif choice == "3":
@@ -262,6 +272,7 @@ def main():
             if changed:
                 model_a, model_b = check_models()
                 if model_a is None:
+                    runner = None
                     print(t("check_reconfig"))
                 else:
                     runner = BatchRunner(model_a, model_b)

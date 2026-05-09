@@ -1,4 +1,5 @@
-"""HTML 报表生成器 — 硬件监控风格 + 中英双语切换"""
+"""HTML report generator — hardware monitoring style + bilingual EN/CN switch
+HTML 报表生成器 — 硬件监控风格 + 中英双语切换"""
 
 import json
 import os
@@ -23,7 +24,8 @@ def _fmt_num(n: int) -> str:
 
 
 def _build_chart_data(result: BatchResult) -> dict:
-    """构建累计胜场数组（Chart.js 用）"""
+    """Build cumulative wins array (for Chart.js)
+    构建累计胜场数组（Chart.js 用）"""
     rounds = result.total_rounds
     labels = [str(i + 1) for i in range(rounds)]
     a_cum = []
@@ -64,6 +66,7 @@ def generate_report(result: BatchResult, model_a_name: str, model_b_name: str) -
     chart = _build_chart_data(result)
     chart_json = json.dumps(chart)
 
+    # Abnormal game details
     # 异常局明细
     abnormal_records = [r for r in result.game_records if r.win_reason != "normal"]
     abnormal_rows = ""
@@ -83,6 +86,7 @@ def generate_report(result: BatchResult, model_a_name: str, model_b_name: str) -
     else:
         abnormal_rows = '<tr><td colspan="6" class="success-message" style="text-align:center;">✅ All games passed integrity check · No violations or timeouts</td></tr>'
 
+    # First/second position cards
     # 正反手卡片
     total_pairs = result.total_rounds // 2
     first_second_html = ""

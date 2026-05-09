@@ -1,6 +1,6 @@
 import pytest
 
-from aipokerjudge.game.rules import (
+from aipokerjudge.games.doudizhu.rules import (
     identify_play_type, get_play_value, can_beat,
     generate_all_possible_plays, group_by_rank, parse_rank, get_card_value,
     _action_priority,

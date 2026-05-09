@@ -1,4 +1,5 @@
-"""对局运行器模块"""
+"""Game runner module
+对局运行器模块"""
 
 from .batch_runner import BatchRunner, GameRecord, BatchResult
 from .visual_runner import run_visual_mode

@@ -1,4 +1,5 @@
-"""报表生成模块"""
+"""Report generation module
+报表生成模块"""
 
 from .generator import generate_report, save_report
 

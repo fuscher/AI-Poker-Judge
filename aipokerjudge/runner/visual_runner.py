@@ -1,15 +1,17 @@
-"""荷官模式运行器 - 实时显示对局过程"""
+"""Dealer mode runner - real-time game display
+荷官模式运行器 - 实时显示对局过程"""
 
 import time
 from typing import Optional, List, Tuple
 from ..model.client import ModelClient
-from ..game.deck import create_initial_state, parse_ascii_card, validate_custom_deal
+from ..games.doudizhu.deck import create_initial_state, parse_ascii_card, validate_custom_deal
 from ..i18n import t
 from .batch_runner import BatchRunner, BatchResult, _percentile, _normalize_swap
 
 
 def _ask_custom_deal(label: str = "") -> Optional[Tuple[List[str], List[str]]]:
-    """询问用户是否亲自发牌，返回 (hand_a, hand_b) 或 None(随机发牌)"""
+    """Ask user whether to deal manually; returns (hand_a, hand_b) or None (random deal)
+    询问用户是否亲自发牌，返回 (hand_a, hand_b) 或 None(随机发牌)"""
     print("\n  " + t("custom_deal_ask"), end="")
     choice = input().strip().lower()
     if choice != 'y':
@@ -117,6 +119,7 @@ def run_visual_mode(runner: BatchRunner, rounds: int, seed: int = None,
                 print(t("user_abort"))
                 break
 
+    # Aggregate results
     # 汇总结果
     a_wins = sum(1 for r in results if r.winner == "A")
     b_wins = sum(1 for r in results if r.winner == "B")

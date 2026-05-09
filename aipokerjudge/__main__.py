@@ -1,4 +1,5 @@
-"""允许通过 python -m aipokerjudge 运行"""
+"""Allows running via python -m aipokerjudge
+允许通过 python -m aipokerjudge 运行"""
 
 from .cli import main
 

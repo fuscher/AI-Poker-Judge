@@ -257,7 +257,7 @@ class TestNormalizeSwap:
         assert swapped.b_cards_played == 10
 
     def test_swap_turns_detail(self):
-        from aipokerjudge.game.models import TurnRecord
+        from aipokerjudge.games.doudizhu.models import TurnRecord
         record = GameRecord(
             round_num=1, winner="A", win_reason="normal",
             offender=None, total_turns=2,

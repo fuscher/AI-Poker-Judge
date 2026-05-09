@@ -1,4 +1,5 @@
-"""OpenAI格式模型客户端"""
+"""OpenAI-format model client
+OpenAI格式模型客户端"""
 
 import time
 from typing import Optional, Tuple, Dict
@@ -9,7 +10,8 @@ from ..i18n import t
 
 
 class ModelClient:
-    """通用OpenAI格式模型客户端，支持GPT、Claude、本地模型等"""
+    """General OpenAI-format model client, supporting GPT, Claude, local models, etc.
+    通用OpenAI格式模型客户端，支持GPT、Claude、本地模型等"""
 
     def __init__(self, model_name: str, api_key: str, base_url: str = None, timeout: int = None):
         self.model_name = model_name
@@ -24,7 +26,8 @@ class ModelClient:
         )
 
     def check_connection(self) -> bool:
-        """发送测试消息验证 API 连通性（含 system prompt，模拟游戏场景）"""
+        """Send test message to verify API connectivity (with system prompt, simulating game scenario)
+        发送测试消息验证 API 连通性（含 system prompt，模拟游戏场景）"""
         try:
             from .prompts import SYSTEM_PROMPT
             response = self.client.chat.completions.create(
@@ -42,6 +45,8 @@ class ModelClient:
 
     def call(self, prompt: str, temperature: float = 0.7, max_tokens: int = 30) -> Tuple[Optional[str], float, Optional[Dict]]:
         """
+        Call model (non-streaming, minimal output for numeric index scenario)
+        Returns: (response content, elapsed seconds, usage dict or None)
         调用模型（非流式，数字索引场景输出极小）
         返回: (响应内容, 耗时秒数, usage字典 或 None)
         """

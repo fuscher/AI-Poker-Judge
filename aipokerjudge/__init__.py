@@ -6,8 +6,8 @@ AI vs AI 斗地主对决平台
 __version__ = "0.1.0"
 __author__ = "AIPokerJudge Contributors"
 
-from .game.engine import DouDiZhuEngine
-from .game.models import GameState, GameStatus, TurnRecord
+from .games.doudizhu.engine import DouDiZhuEngine
+from .games.doudizhu.models import GameState, GameStatus, TurnRecord
 from .model.client import ModelClient
 from .runner.batch_runner import BatchRunner
 from .report.generator import generate_report, save_report

@@ -1,13 +1,14 @@
-"""批量测试运行器 - 核心业务逻辑"""
+"""Batch test runner - core business logic
+批量测试运行器 - 核心业务逻辑"""
 
 import time
 from datetime import datetime
 from typing import List, Optional, Tuple, Callable
 from dataclasses import dataclass, field
 
-from ..game.engine import DouDiZhuEngine
-from ..game.models import GameState, GameStatus, TurnRecord
-from ..game.rules import identify_play_type
+from ..games.doudizhu.engine import DouDiZhuEngine
+from ..games.doudizhu.models import GameState, GameStatus, TurnRecord
+from ..games.doudizhu.rules import identify_play_type
 from ..model.client import ModelClient
 from ..model.prompts import build_decision_prompt
 from ..model.parser import parse_action
@@ -17,11 +18,15 @@ from ..i18n import t
 
 @dataclass
 class GameRecord:
-    """单局记录"""
+    """Game record
+    单局记录"""
     round_num: int
-    winner: str                      # "A" 或 "B"
+    winner: str                      # "A" or "B"
+                                     # "A" 或 "B"
     win_reason: str                  # "normal", "violation", "timeout", "error", "max_turns"
-    offender: Optional[str]          # 违规方（如果有）
+                                     # 正常(normal) / 违规(violation) / 超时(timeout) / 错误(error) / 最大回合(max_turns)
+    offender: Optional[str]          # Offending side (if any)
+                                     # 违规方（如果有）
     total_turns: int
     final_hand_a: List[str]
     final_hand_b: List[str]
@@ -45,7 +50,8 @@ class GameRecord:
     a_response_times: List[int] = field(default_factory=list)
     b_response_times: List[int] = field(default_factory=list)
     violation_detail: Optional[str] = None
-    deal_pair_id: Optional[int] = None  # 发牌归一化：同一对手牌的两局共享此ID
+    deal_pair_id: Optional[int] = None  # Deal normalization: two rounds with the same deal share this ID
+                                        # 发牌归一化：同一对手牌的两局共享此ID
     # Token 用量
     a_prompt_tokens: int = 0
     b_prompt_tokens: int = 0
@@ -54,7 +60,8 @@ class GameRecord:
 
 
 def _percentile(data: List[int], p: float) -> float:
-    """计算百分位数"""
+    """Calculate percentile
+    计算百分位数"""
     if not data:
         return 0.0
     s = sorted(data)
@@ -63,7 +70,8 @@ def _percentile(data: List[int], p: float) -> float:
 
 
 def _normalize_swap(record: GameRecord) -> GameRecord:
-    """交换 A/B 标签使 A=model_a B=model_b（用于位置轮换后的归位）"""
+    """Swap A/B labels so A=model_a B=model_b (for post-position-swap normalization)
+    交换 A/B 标签使 A=model_a B=model_b（用于位置轮换后的归位）"""
     _swap = {"A": "B", "B": "A"}
     record.winner = _swap.get(record.winner, record.winner)
     if record.offender:
@@ -84,7 +92,8 @@ def _normalize_swap(record: GameRecord) -> GameRecord:
 
 @dataclass
 class BatchResult:
-    """批量测试结果"""
+    """Batch test result
+    批量测试结果"""
     total_rounds: int
     a_wins: int
     b_wins: int
@@ -94,9 +103,11 @@ class BatchResult:
     b_timeouts: int
     a_avg_response_ms: float
     b_avg_response_ms: float
-    a_normal_wins: int               # 正常结束的胜局
+    a_normal_wins: int               # Normal wins
+                                     # 正常结束的胜局
     b_normal_wins: int
-    abnormal_rounds: int             # 异常结束局数
+    abnormal_rounds: int             # Abnormal rounds
+                                     # 异常结束局数
     game_records: List[GameRecord] = field(default_factory=list)
     start_time: str = ""
     end_time: str = ""
@@ -117,16 +128,20 @@ class BatchResult:
     b_total_prompt_tokens: int = 0
     a_total_completion_tokens: int = 0
     b_total_completion_tokens: int = 0
+    # First/second-hand win rates
     # 正反手胜率
-    a_wins_as_first: int = 0       # model_a 先手（局号奇数）胜局
-    a_wins_as_second: int = 0      # model_a 后手（局号偶数）胜局
+    a_wins_as_first: int = 0       # model_a wins as first player (odd round number)
+                                   # model_a 先手（局号奇数）胜局
+    a_wins_as_second: int = 0      # model_a wins as second player (even round number)
+                                   # model_a 后手（局号偶数）胜局
     b_wins_as_first: int = 0
     b_wins_as_second: int = 0
     elapsed_seconds: float = 0.0
 
 
 class BatchRunner:
-    """批量测试运行器"""
+    """Batch test runner
+    批量测试运行器"""
     
     def __init__(self, model_a: ModelClient, model_b: ModelClient):
         self.model_a = model_a
@@ -136,12 +151,14 @@ class BatchRunner:
     def run_one_round(self, round_num: int, seed: int = None, 
                       verbose: bool = False,
                       preset_hands: Optional[Tuple[List[str], List[str]]] = None) -> GameRecord:
-        """执行一局游戏
+        """Execute one game round
+        执行一局游戏
         
+        preset_hands: Optional (hand_for_A, hand_for_B); skips random dealing when provided
         preset_hands: 可选 (hand_for_A, hand_for_B)，提供时跳过随机发牌
         """
         if preset_hands:
-            from ..game.deck import create_state_with_hands
+            from ..games.doudizhu.deck import create_state_with_hands
             state = create_state_with_hands(preset_hands[0], preset_hands[1])
             used_seed = None
         else:
@@ -175,9 +192,11 @@ class BatchRunner:
             current = state.current_player
             hand_before = self.engine.get_current_player_hand(state).copy()
             
+            # Get legal actions
             # 获取合法动作
             legal_actions = self.engine.get_legal_actions(state)
             
+            # Auto-pass if no legal actions available
             # 如果没有合法动作，自动过牌
             if not legal_actions:
                 action = []
@@ -185,6 +204,7 @@ class BatchRunner:
                 response_time_ms = 0
                 action_desc = t("pass_no_legal")
             else:
+                # Call the model
                 # 调用模型
                 model = self.model_a if current == "A" else self.model_b
                 prompt = build_decision_prompt(state, legal_actions, turn_history)
@@ -193,6 +213,7 @@ class BatchRunner:
                 response, elapsed, usage = model.call(prompt)
                 response_time_ms = int(elapsed * 1000)
                 
+                # Accumulate token usage
                 # 累加 token 用量
                 if usage:
                     if current == "A":
@@ -202,6 +223,7 @@ class BatchRunner:
                         record.b_prompt_tokens += usage.get("prompt_tokens", 0)
                         record.b_completion_tokens += usage.get("completion_tokens", 0)
                 
+                # Check timeout
                 # 检查超时
                 if elapsed > TIMEOUT_SECONDS:
                     if current == "A":
@@ -209,6 +231,7 @@ class BatchRunner:
                     else:
                         record.b_timeouts += 1
                     
+                    # Timeout → loss
                     # 超时判负
                     winner = "B" if current == "A" else "A"
                     record.winner = winner
@@ -223,11 +246,13 @@ class BatchRunner:
                     
                     return record
                 
+                # Parse action
                 # 解析动作
                 action = parse_action(response, legal_actions)
                 is_valid = action is not None
                 action_desc = " ".join(action) if action else t("pass_action")
                 
+                # Invalid action or model call error
                 # 动作不合法或模型调用错误
                 if not is_valid:
                     if current == "A":
@@ -241,6 +266,7 @@ class BatchRunner:
                         display = (response or "<no response>")[:50]
                         print("  ⚠️ " + t("violation_warn", player=current, output=display))
                     
+                    # Determine loss: distinguish API error vs model violation
                     # 判负：区分 API 错误 vs 模型违规
                     winner = "B" if current == "A" else "A"
                     record.winner = winner
@@ -252,6 +278,7 @@ class BatchRunner:
                     
                     return record
             
+            # Update response time statistics
             # 更新响应时间统计
             if current == "A":
                 record.a_total_response_ms += response_time_ms
@@ -280,12 +307,14 @@ class BatchRunner:
                 else:
                     record.b_pass_count += 1
             
+            # Execute action
             # 执行动作
             if verbose:
                 print("  " + t("turn_info", turn=turn_count, player=current, action=action_desc))
             
             state = self.engine.apply_action(state, action if action else [])
             
+            # Record turn details
             # 记录回合详情
             hand_after = self.engine.get_current_player_hand(state) if current == "A" else state.player_b_hand
             turn_record = TurnRecord(
@@ -305,6 +334,7 @@ class BatchRunner:
                 'action': action_desc,
             })
         
+        # Normal end or max turns reached
         # 正常结束或超回合数
         if state.game_status == GameStatus.A_WIN:
             record.winner = "A"
@@ -313,6 +343,7 @@ class BatchRunner:
             record.winner = "B"
             record.win_reason = "normal"
         else:
+            # Max turns exceeded, A wins
             # 超过最大回合数，判A胜
             record.winner = "A"
             record.win_reason = "max_turns"
@@ -327,8 +358,9 @@ class BatchRunner:
                   verbose: bool = False,
                   on_progress: Optional[Callable] = None,
                   do_swap: bool = None) -> BatchResult:
-        """批量运行多局（支持发牌归一化 + 位置轮换）"""
-        from ..game.deck import create_initial_state
+        """Batch run multiple rounds (supports deal normalization + position swap)
+        批量运行多局（支持发牌归一化 + 位置轮换）"""
+        from ..games.doudizhu.deck import create_initial_state
         
         if do_swap is None:
             do_swap = POSITION_SWAP or DEAL_NORMALIZATION
@@ -355,12 +387,14 @@ class BatchRunner:
         
         while i < rounds:
             if do_swap and i + 1 < rounds:
+                # ---- Deal pair mode: same hand, two rounds swapping positions ----
                 # ---- 发牌对模式：同一手牌，两局交换位置 ----
                 pair_seed = seed + pair_id * 1000 if seed is not None else None
                 base_state = create_initial_state(pair_seed)
                 hand_a = list(base_state.player_a_hand)
                 hand_b = list(base_state.player_b_hand)
                 
+                # Round i:   model_a=A(hand_a), model_b=B(hand_b)
                 # 局 i:   model_a=A(hand_a), model_b=B(hand_b)
                 rec1 = self.run_one_round(i + 1, None, verbose, (hand_a, hand_b))
                 rec1.deal_pair_id = pair_id
@@ -368,6 +402,7 @@ class BatchRunner:
                 result.game_records.append(rec1)
                 completed += 1
                 
+                # Round i+1: model_a=B(hand_b), model_b=A(hand_a)  ← swap
                 # 局 i+1: model_a=B(hand_b), model_b=A(hand_a)  ← 交换
                 rec2 = self.run_one_round(i + 2, None, verbose, (hand_b, hand_a))
                 rec2 = _normalize_swap(rec2)
@@ -379,6 +414,7 @@ class BatchRunner:
                 pair_id += 1
                 i += 2
             else:
+                # ---- Traditional single-round mode ----
                 # ---- 传统单局模式 ----
                 round_seed = seed + i if seed is not None else None
                 rec = self.run_one_round(i + 1, round_seed, verbose)
@@ -392,6 +428,7 @@ class BatchRunner:
             if not verbose and completed % max(1, rounds // 10) == 0:
                 print(f"  进度: {completed}/{rounds} 局 (比分: {result.a_wins}:{result.b_wins})")
         
+        # Calculate aggregate metrics
         # 计算聚合指标
         total_a_decisions = sum(r.a_decision_count for r in result.game_records)
         total_a_time = sum(r.a_total_response_ms for r in result.game_records)
@@ -428,6 +465,7 @@ class BatchRunner:
         result.a_total_completion_tokens = sum(r.a_completion_tokens for r in result.game_records)
         result.b_total_completion_tokens = sum(r.b_completion_tokens for r in result.game_records)
         
+        # First/second-hand win rates (deal pair mode: odd rounds = model_a first)
         # 正反手胜率（发牌对模式：奇数局 = model_a 先手）
         for r in result.game_records:
             if r.deal_pair_id is not None:
@@ -449,7 +487,8 @@ class BatchRunner:
     
     @staticmethod
     def _agg(result: BatchResult, rec: GameRecord):
-        """累加单局统计"""
+        """Accumulate game record statistics
+        累加单局统计"""
         if rec.winner == "A":
             result.a_wins += 1
             if rec.win_reason == "normal":

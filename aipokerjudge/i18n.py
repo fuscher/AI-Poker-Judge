@@ -1,4 +1,5 @@
-"""国际化 / i18n 模块"""
+"""Internationalization / i18n module
+国际化 / i18n 模块"""
 
 LANG = "en"  # "zh" | "en"
 
@@ -13,10 +14,12 @@ _STRINGS = {
     "goodbye":             {"zh": "再见！",                    "en": "Goodbye!"},
     "invalid_option":      {"zh": "无效选项",                  "en": "Invalid option"},
 
+    # === Language Switching ===
     # === 语言切换 ===
     "menu_lang":           {"zh": "语言 (简体中文)",           "en": "Language (English)"},
     "lang_changed":        {"zh": "语言已切换为: 简体中文",    "en": "Language: English"},
 
+    # === Configuration Menu ===
     # === 配置菜单 ===
     "cfg_title":           {"zh": "配置管理",                  "en": "Configuration"},
     "cfg_model_a":         {"zh": "模型A",                     "en": "Model A"},
@@ -47,6 +50,7 @@ _STRINGS = {
     "cfg_prompt_seed":     {"zh": "种子值 [{cur}] (r=随机): ","en": "Seed [{cur}] (r=random): "},
     "cfg_timeout_s":       {"zh": "s",                            "en": "s"},
 
+    # === Model Connection Check ===
     # === 模型连通检查 ===
     "check_no_key":        {"zh": "模型A Key 未设置",          "en": "Model A Key not set"},
     "check_testing":       {"zh": "正在检测模型{label} ({name})...", "en": "Checking model {label} ({name})..."},
@@ -54,6 +58,7 @@ _STRINGS = {
     "check_fail":          {"zh": "⚠️ 模型{label}连接失败: {name}",   "en": "⚠️ Model {label} failed: {name}"},
     "check_reconfig":      {"zh": "⚠️ 模型连接失败，仍使用旧配置",    "en": "⚠️ Connection failed, keeping previous config"},
 
+    # === Rounds/Seed Input ===
     # === 轮次/种子输入 ===
     "rounds_prompt":       {"zh": "请输入对局轮次 (默认{default}): ", "en": "Enter rounds (default {default}): "},
     "rounds_confirm":      {"zh": "轮次 {n} 较大，确认继续? (y/n): ", "en": "Rounds {n} is high, confirm? (y/n): "},
@@ -76,6 +81,7 @@ _STRINGS = {
     "player_a":            {"zh": "玩家A",                             "en": "Player A"},
     "player_b":            {"zh": "玩家B",                             "en": "Player B"},
 
+    # === Game Status ===
     # === 游戏状态 ===
     "turn_info":           {"zh": "【回合{turn}】玩家{player} 出牌: {action}", "en": "[Turn {turn}] Player {player}: {action}"},
     "timeout_warn":        {"zh": "玩家{player} 超时 ({elapsed:.1f}s)，判负",  "en": "Player {player} timed out ({elapsed:.1f}s), lost"},
@@ -92,6 +98,7 @@ _STRINGS = {
     "continue_prompt":     {"zh": "\n按 Enter 继续下一局，输入 q 退出: ",    "en": "\nPress Enter for next, q to quit: "},
     "continue_prompt_swap":{"zh": "\n按 Enter 继续下一局（交换位置），输入 q 退出: ", "en": "\nPress Enter for next (swapped), q to quit: "},
 
+    # === Results Summary ===
     # === 结果摘要 ===
     "results_title":       {"zh": "测试完成!",                                "en": "Test Complete!"},
     "results_score":       {"zh": "最终比分",                                  "en": "Final Score"},
@@ -115,24 +122,35 @@ _STRINGS = {
     "blackbox_pair_error": {"zh": "发牌对{pair_id}异常: {e}",                                      "en": "Deal pair {pair_id} error: {e}"},
     "blackbox_round_timeout":{"zh": "第{idx}局执行超时，跳过",                                      "en": "Round {idx} timed out"},
 
+    # === Model Client ===
     # === 模型客户端 ===
     "api_error":           {"zh": "模型调用错误 [{name}]: {e}",                  "en": "Model API error [{name}]: {e}"},
     "api_fail_detail":     {"zh": "API调用失败，详见上方错误日志",                "en": "API call failed, see error log above"},
 
+    # === Game Actions ===
     # === 游戏动作 ===
     "pass_action":         {"zh": "不要",                        "en": "Pass"},
     "pass_no_legal":       {"zh": "不要（无合法动作）",          "en": "Pass (no legal action)"},
 
+    # === Report Saving ===
     # === 报表保存 ===
     "save_json":           {"zh": "📄 原始数据已保存: {path}",    "en": "📄 Raw data saved: {path}"},
     "save_html":           {"zh": "📄 报表已保存: {path}",        "en": "📄 Report saved: {path}"},
     "save_open_prompt":    {"zh": "\n📂 是否在浏览器中打开报表? (y/n, 默认y): ", "en": "\n📂 Open report in browser? (y/n, default y): "},
     "save_opened":         {"zh": "🌐 已在浏览器中打开: {path}",  "en": "🌐 Opened in browser: {path}"},
+
+    # === First-run Tips ===
+    # === 首次运行提示 ===
+    "tip_title":           {"zh": "💡 首次使用提示",                            "en": "💡 Quick Tips"},
+    "tip_no_key":          {"zh": "API Key 未配置，请先设置后再开始对局",       "en": "API Key not configured. Please set it up before playing"},
+    "tip_guide":           {"zh": "→ 请选择 [3] 配置管理 来设置 API Key，然后选择 [C] 检查连接",
+                             "en": "→ Select [3] Configuration to set API keys, then press [C] to test connection"},
 }
 
 
 def t(key: str, **kwargs) -> str:
-    """获取当前语言的翻译文本，支持 format 参数"""
+    """Get translated text for the current language, supports format parameters
+    获取当前语言的翻译文本，支持 format 参数"""
     entry = _STRINGS.get(key, {})
     text = entry.get(LANG, key)
     if kwargs:
@@ -141,7 +159,8 @@ def t(key: str, **kwargs) -> str:
 
 
 def toggle_lang():
-    """切换语言，返回新语言名"""
+    """Toggle language, return the new language name
+    切换语言，返回新语言名"""
     global LANG
     LANG = "en" if LANG == "zh" else "zh"
     return t("lang_changed")

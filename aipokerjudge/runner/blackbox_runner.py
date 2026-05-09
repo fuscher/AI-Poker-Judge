@@ -1,10 +1,11 @@
-"""基准测试运行器 - 并行批量执行"""
+"""Benchmark runner - parallel batch execution
+基准测试运行器 - 并行批量执行"""
 
 import time
 from typing import Optional, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 from ..model.client import ModelClient
-from ..game.deck import generate_deal_pairs
+from ..games.doudizhu.deck import generate_deal_pairs
 from ..i18n import t
 from .batch_runner import (
     BatchRunner, BatchResult, GameRecord, _percentile, _normalize_swap
@@ -23,7 +24,8 @@ def _run_deal_pair(
     pair_id: int, hand_a: List[str], hand_b: List[str],
     timeout_s: int
 ) -> Tuple[GameRecord, GameRecord]:
-    """线程内串行跑一个发牌对（正常 + 交换）"""
+    """Run a deal pair serially in a thread (normal + swap)
+    线程内串行跑一个发牌对（正常 + 交换）"""
     runner = BatchRunner(model_a, model_b)
 
     rec1 = runner.run_one_round(pair_id * 2 + 1, None, False, (hand_a, hand_b))
@@ -39,6 +41,7 @@ def _run_deal_pair(
 def run_blackbox_mode(runner: BatchRunner, rounds: int, seed: int = None,
                       max_workers: int = 3, do_swap: bool = None) -> BatchResult:
     """
+    Black-box mode: multi-threaded parallel execution (deal normalization + position swap)
     黑盒模式：多线程并行执行（发牌归一化 + 位置轮换）
     """
     from aipokerjudge.config import POSITION_SWAP, DEAL_NORMALIZATION
@@ -128,6 +131,7 @@ def run_blackbox_mode(runner: BatchRunner, rounds: int, seed: int = None,
                 end_str = "\n" if completed == rounds else "\r"
                 print(f"  [{bar}] {percent}% ({completed}/{rounds}) 比分: {a_wins}:{b_wins}", end=end_str)
 
+    # Aggregate results
     # 汇总结果
     records = [r for r in game_records if r is not None]
     a_wins = sum(1 for r in records if r.winner == "A")
@@ -167,6 +171,7 @@ def run_blackbox_mode(runner: BatchRunner, rounds: int, seed: int = None,
         a_ct += r.a_completion_tokens
         b_ct += r.b_completion_tokens
 
+    # First/second-hand win rates
     # 正反手胜率
     a_first = sum(1 for r in records if r.deal_pair_id is not None and r.round_num % 2 == 1 and r.winner == "A")
     a_second = sum(1 for r in records if r.deal_pair_id is not None and r.round_num % 2 == 0 and r.winner == "A")
