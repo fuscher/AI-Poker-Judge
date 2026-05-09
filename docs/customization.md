@@ -89,7 +89,7 @@ from aipokerjudge.report.generator import save_report
 在荷官模式下可手动指定手牌：
 
 ```python
-from aipokerjudge.game.deck import create_state_with_hands
+from aipokerjudge.games.doudizhu.deck import create_state_with_hands
 
 state = create_state_with_hands(
     hand_a=["♥3", "♥4", "♥5", "♥6", "♥7"],  # A 的顺子

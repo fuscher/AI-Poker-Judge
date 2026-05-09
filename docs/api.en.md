@@ -4,11 +4,12 @@
 
 ```
 aipokerjudge/
-├── game/              # Game engine
-│   ├── engine.py      # DouDiZhuEngine
-│   ├── models.py      # GameState, GameStatus, TurnRecord
-│   ├── deck.py        # Deck, dealing utilities
-│   └── rules.py       # Card pattern recognition & comparison
+├── games/             # Game modules (extensible)
+│   └── doudizhu/      # Dou Di Zhu
+│       ├── engine.py      # DouDiZhuEngine
+│       ├── models.py      # GameState, GameStatus, TurnRecord
+│       ├── deck.py        # Deck, dealing utilities
+│       └── rules.py       # Card pattern recognition & comparison
 ├── model/             # AI model
 │   ├── client.py      # ModelClient (OpenAI-compatible)
 │   ├── parser.py      # parse_action (LLM output parser)
@@ -23,7 +24,7 @@ aipokerjudge/
 
 ---
 
-## Game Engine — `aipokerjudge.game`
+## Game Engine — `aipokerjudge.games.doudizhu`
 
 ### `DouDiZhuEngine`
 

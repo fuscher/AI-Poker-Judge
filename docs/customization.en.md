@@ -89,7 +89,7 @@ For a completely custom HTML template, modify `generate_report()` in `generator.
 Specify custom hands in dealer mode:
 
 ```python
-from aipokerjudge.game.deck import create_state_with_hands
+from aipokerjudge.games.doudizhu.deck import create_state_with_hands
 
 state = create_state_with_hands(
     hand_a=["♥3", "♥4", "♥5", "♥6", "♥7"],  # A's straight

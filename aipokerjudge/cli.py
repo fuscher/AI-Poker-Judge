@@ -56,14 +56,14 @@ def print_banner():
 
 
 def print_menu():
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 79)
     print(t("menu_title"))
     print("  1.  " + t("menu_dealer"))
     print("  2.  " + t("menu_benchmark"))
     print("  3.  " + t("menu_config"))
     print("  4.  " + t("menu_lang"))
     print("  0.  " + t("menu_exit"))
-    print("=" * 60)
+    print("=" * 79)
 
 
 def config_menu():
@@ -73,9 +73,9 @@ def config_menu():
         sc = session_config
         en = lambda v: t("cfg_enabled") if v else t("cfg_disabled")
 
-        print("\n" + "=" * 50)
+        print("\n" + "=" * 79)
         print("            {}  {}".format("⚙️", t("cfg_title")))
-        print("=" * 50)
+        print("=" * 79)
         print("  ── {} ──".format(t("cfg_model_a")))
         print(f"  [1] {t('cfg_name')}:   {sc['a_name']}")
         print(f"  [2] {t('cfg_key')}:    {_mask_key(sc['a_key'])}")
@@ -91,10 +91,10 @@ def config_menu():
         print(f"  [10] {t('cfg_deal_norm')}: {en(sc['deal_normalization'])}")
         print(f"  [11] {t('cfg_timeout')}:   {sc['timeout']}{t('cfg_timeout_s')}")
         print(f"  [12] {t('cfg_seed')}:   {sc['seed']} (None={t('cfg_random')})")
-        print("  " + "-" * 46)
+        print("  " + "-" * 75)
         print("  [C] {}".format(t("cfg_check_conn")))
         print("  [0] {}".format(t("cfg_return")))
-        print("=" * 50)
+        print("=" * 79)
 
         choice = input("  {} ".format(t("cfg_enter_option"))).strip()
 
@@ -218,11 +218,11 @@ def get_seed():
 
 def check_config_tips():
     if not session_config.get("a_key") and not session_config.get("b_key"):
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 79)
         print("  " + t("tip_title"))
         print("  " + t("tip_no_key"))
         print("  " + t("tip_guide"))
-        print("=" * 60 + "\n")
+        print("=" * 79 + "\n")
 
 
 def main():
@@ -247,7 +247,7 @@ def main():
             if runner is None:
                 model_a, model_b = check_models()
                 if model_a is None:
-                    print("\n  " + t("check_reconfig") + "\n")
+                    print("\n" + t("check_reconfig") + "\n")
                     continue
                 runner = BatchRunner(model_a, model_b)
 

@@ -10,6 +10,8 @@
 
 AI-Poker-Judge is a simplified 1v1 Dou Di Zhu testing framework that pits two AI models against each other. It evaluates LLMs on strategic reasoning, rule compliance, and response speed. Supports any OpenAI-compatible API (DeepSeek, GPT, Claude, Ollama, etc.).
 
+Built with a modular `games/` package structure — ready for future game types.
+
 ---
 
 ## Features
@@ -70,9 +72,9 @@ Key classes and functions:
 
 | Module | Key Exports |
 |---|---|
-| `aipokerjudge.game.engine` | `DouDiZhuEngine` |
-| `aipokerjudge.game.models` | `GameState`, `GameStatus`, `TurnRecord` |
-| `aipokerjudge.game.rules` | `identify_play_type`, `can_beat`, `generate_all_possible_plays` |
+| `aipokerjudge.games.doudizhu.engine` | `DouDiZhuEngine` |
+| `aipokerjudge.games.doudizhu.models` | `GameState`, `GameStatus`, `TurnRecord` |
+| `aipokerjudge.games.doudizhu.rules` | `identify_play_type`, `can_beat`, `generate_all_possible_plays` |
 | `aipokerjudge.model.client` | `ModelClient` |
 | `aipokerjudge.model.parser` | `parse_action` |
 | `aipokerjudge.model.prompts` | `build_decision_prompt` |
@@ -99,11 +101,12 @@ Key classes and functions:
 
 ```
 aipokerjudge/
-├── game/           # Engine: deck, rules, card patterns
-│   ├── deck.py     # Card dealing & deck management
-│   ├── engine.py   # DouDiZhuEngine
-│   ├── models.py   # Data models
-│   └── rules.py    # Card pattern recognition & comparison
+├── games/          # Game modules (extensible)
+│   └── doudizhu/   # Dou Di Zhu engine
+│       ├── deck.py     # Card dealing & deck management
+│       ├── engine.py   # DouDiZhuEngine
+│       ├── models.py   # Data models
+│       └── rules.py    # Card pattern recognition & comparison
 ├── model/          # AI model integration
 │   ├── client.py   # OpenAI-compatible API client
 │   ├── parser.py   # LLM output parser

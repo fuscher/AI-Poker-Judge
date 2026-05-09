@@ -70,9 +70,9 @@ python -m aipokerjudge
 
 | 模块 | 主要导出 |
 |---|---|
-| `aipokerjudge.game.engine` | `DouDiZhuEngine` |
-| `aipokerjudge.game.models` | `GameState`, `GameStatus`, `TurnRecord` |
-| `aipokerjudge.game.rules` | `identify_play_type`, `can_beat`, `generate_all_possible_plays` |
+| `aipokerjudge.games.doudizhu.engine` | `DouDiZhuEngine` |
+| `aipokerjudge.games.doudizhu.models` | `GameState`, `GameStatus`, `TurnRecord` |
+| `aipokerjudge.games.doudizhu.rules` | `identify_play_type`, `can_beat`, `generate_all_possible_plays` |
 | `aipokerjudge.model.client` | `ModelClient` |
 | `aipokerjudge.model.parser` | `parse_action` |
 | `aipokerjudge.model.prompts` | `build_decision_prompt` |
@@ -99,11 +99,12 @@ python -m aipokerjudge
 
 ```
 aipokerjudge/
-├── game/           # 游戏引擎：牌堆、规则、牌型
-│   ├── deck.py     # 发牌与牌堆管理
-│   ├── engine.py   # DouDiZhuEngine 游戏状态机
-│   ├── models.py   # 数据模型
-│   └── rules.py    # 牌型识别与比较
+├── games/          # 游戏模块（可扩展）
+│   └── doudizhu/   # 斗地主引擎
+│       ├── deck.py     # 发牌与牌堆管理
+│       ├── engine.py   # DouDiZhuEngine 游戏状态机
+│       ├── models.py   # 数据模型
+│       └── rules.py    # 牌型识别与比较
 ├── model/          # AI 模型集成
 │   ├── client.py   # OpenAI 兼容 API 客户端
 │   ├── parser.py   # LLM 输出解析器

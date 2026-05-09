@@ -56,7 +56,7 @@ _STRINGS = {
     "check_testing":       {"zh": "正在检测模型{label} ({name})...", "en": "Checking model {label} ({name})..."},
     "check_ok":            {"zh": "✅ 模型{label}已识别: {name}",     "en": "✅ Model {label} ready: {name}"},
     "check_fail":          {"zh": "⚠️ 模型{label}连接失败: {name}",   "en": "⚠️ Model {label} failed: {name}"},
-    "check_reconfig":      {"zh": "⚠️ 模型连接失败，仍使用旧配置",    "en": "⚠️ Connection failed, keeping previous config"},
+    "check_reconfig":      {"zh": "⚠️ 模型连接失败",                   "en": "⚠️ Connection failed"},
 
     # === Rounds/Seed Input ===
     # === 轮次/种子输入 ===
